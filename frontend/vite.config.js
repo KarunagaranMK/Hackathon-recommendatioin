@@ -8,4 +8,3 @@ export default defineConfig({
     strictPort: false, // auto-increment if 5173 is busy
   },
 })
-
