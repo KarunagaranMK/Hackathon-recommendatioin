@@ -50,6 +50,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         settings.FRONTEND_URL,
+        "https://hackathon-recommendatioin.vercel.app",  # production Vercel
+        "https://hackathon-recommendatioin-git-main-karunagaranmks-projects.vercel.app",
         "http://localhost:5173",
         "http://localhost:5174",
         "http://localhost:5175",
