@@ -1,0 +1,100 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+
+from app.database.mongodb import connect_db, close_db, is_connected
+from app.api import auth, users, projects, recommendation, favorites, progress
+from app.api import project_roadmap
+from app.config import get_settings
+
+settings = get_settings()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # ── Startup ──────────────────────────────────────────────────────
+    print("[INFO] Starting HackMatch AI backend...")
+
+    # Connect to MongoDB (non-fatal if it fails)
+    await connect_db()
+
+    # Pre-load embedding model (so first recommendation isn't slow)
+    try:
+        from app.ai.embedding import get_model
+        get_model()
+        print("[OK] Embedding model loaded")
+    except Exception as e:
+        print(f"[W  ARN] Could not pre-load embedding model: {e}")
+
+    if not is_connected():
+        print("=" * 60)
+        print("  IMPORTANT: MongoDB is NOT connected.")
+        print("  The backend will start but API calls will fail.")
+        print("  TO FIX:")
+        print("  1. Go to https://cloud.mongodb.com")
+        print("  2. Select your cluster -> Network Access")
+        print("  3. Click 'Add IP Address'")
+        print("  4. Click 'Allow Access from Anywhere' (0.0.0.0/0)")
+        print("  5. Confirm, wait 30 seconds, then restart backend")
+        print("=" * 60)
+    else:
+        print("[OK] Backend is fully ready!")
+
+    yield
+
+    # ── Shutdown ─────────────────────────────────────────────────────
+    await close_db()
+
+
+app = FastAPI(
+    title="HackMatch AI — Hackathon Project Recommender",
+    description="AI-Powered Hackathon Project Idea Recommendation System",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+# ── CORS ──────────────────────────────────────────────────────────────
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        settings.FRONTEND_URL,
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
+        "http://localhost:5176",
+        "http://localhost:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ── Routers ───────────────────────────────────────────────────────────
+app.include_router(auth.router,              prefix="/api")
+app.include_router(users.router,             prefix="/api")
+app.include_router(projects.router,          prefix="/api")
+app.include_router(recommendation.router,    prefix="/api")
+app.include_router(favorites.router,         prefix="/api")
+app.include_router(progress.router,          prefix="/api")
+app.include_router(project_roadmap.router,   prefix="/api")
+
+
+# ── Health ────────────────────────────────────────────────────────────
+@app.get("/health")
+async def health_check():
+    db_status = "connected" if is_connected() else "disconnected"
+    return {
+        "status": "ok" if is_connected() else "degraded",
+        "api": "running",
+        "database": db_status,
+        "message": "Fix Atlas IP whitelist if database is disconnected",
+    }
+
+
+@app.get("/")
+async def root():
+    return {
+        "message": "HackMatch AI — Hackathon Project Recommendation API",
+        "docs": "/docs",
+        "health": "/health",
+    }

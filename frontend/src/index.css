@@ -1,0 +1,50 @@
+/* ── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; }
+
+body {
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  background: #F8FAFC;
+  color: #0F172A;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Auth page centering ────────────────────────────────── */
+/* Guarantees login/register is always perfectly centered  */
+.auth-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F8FAFC;
+  padding: 16px;
+}
+
+/* ── Browser autofill fix (light theme) ─────────────────── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 60px #ffffff inset !important;
+  -webkit-text-fill-color: #0F172A !important;
+  caret-color: #0F172A;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* ── Selection ──────────────────────────────────────────── */
+::selection { background: rgba(79, 70, 229, 0.15); color: #0F172A; }
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+/* ── Page fade-in animation ─────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter { animation: fadeIn 0.2s ease both; }
