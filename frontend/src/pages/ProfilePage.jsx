@@ -39,9 +39,18 @@ function ChipGroup({ label, hint, options, selected, onChange }) {
     onChange(selected.includes(opt) ? selected.filter((s) => s !== opt) : [...selected, opt]);
   return (
     <Box>
-      <Typography variant="subtitle2" fontWeight={600} mb={0.5}>{label}</Typography>
-      {hint && <Typography variant="caption" color="text.secondary" display="block" mb={1}>{hint}</Typography>}
-      <Box display="flex" flexWrap="wrap" gap={0.75}>
+      {label && <Typography variant="subtitle2" fontWeight={600} mb={0.5}>{label}</Typography>}
+      {hint && <Typography variant="caption" color="text.secondary" display="block" mb={1.25}>{hint}</Typography>}
+      {/* className chip-group ensures proper flex-wrap with gap */}
+      <Box
+        className="chip-group"
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "8px",
+          rowGap: "8px",
+        }}
+      >
         {options.map((opt) => {
           const active = selected.includes(opt);
           return (
@@ -49,14 +58,23 @@ function ChipGroup({ label, hint, options, selected, onChange }) {
               key={opt}
               label={opt}
               onClick={() => toggle(opt)}
-              icon={active ? <CheckIcon sx={{ fontSize: "13px !important", color: "#4F46E5 !important" }} /> : undefined}
+              icon={active ? <CheckIcon sx={{ fontSize: "13px !important", color: "#1AA99A !important" }} /> : undefined}
               sx={{
                 cursor: "pointer",
-                background: active ? "#EEF2FF" : "#fff",
-                border: `1px solid ${active ? "#C7D2FE" : "#E2E8F0"}`,
-                color: active ? "#4F46E5" : "text.secondary",
+                flexShrink: 0,
+                height: 34,
+                fontSize: "0.8125rem",
                 fontWeight: active ? 600 : 400,
-                "&:hover": { background: active ? "#E0E7FF" : "#F8FAFC" },
+                background: active ? "rgba(26,169,154,0.12)" : "#fff",
+                border: `1.5px solid ${active ? "#1AA99A" : "#D5E8E5"}`,
+                color: active ? "#12857A" : "#5F7A76",
+                transition: "all 0.15s ease",
+                "& .MuiChip-label": { px: 1.5, whiteSpace: "nowrap" },
+                "&:hover": {
+                  background: active ? "rgba(26,169,154,0.18)" : "rgba(26,169,154,0.06)",
+                  borderColor: "#1AA99A",
+                  transform: "translateY(-1px)",
+                },
               }}
             />
           );
@@ -69,9 +87,17 @@ function ChipGroup({ label, hint, options, selected, onChange }) {
 // ─── Section wrapper ────────────────────────────────────────────────
 function Section({ title, description, children }) {
   return (
-    <Paper sx={{ p: { xs: 2.5, sm: 3 }, mb: 2.5 }}>
-      <Box mb={2.5}>
-        <Typography variant="h4" mb={0.25}>{title}</Typography>
+    <Paper
+      sx={{
+        p: { xs: 2.5, sm: 3.5 },
+        mb: 2.5,
+        border: "1.5px solid #E2EDED",
+        borderRadius: "14px",
+        boxShadow: "0 2px 12px rgba(26,169,154,0.06)",
+      }}
+    >
+      <Box mb={2.5} pb={2} sx={{ borderBottom: "1px solid #EBF4F3" }}>
+        <Typography variant="h4" mb={0.25} color="#12342F">{title}</Typography>
         {description && <Typography variant="body2" color="text.secondary">{description}</Typography>}
       </Box>
       {children}
@@ -169,18 +195,30 @@ export default function ProfilePage() {
       </Box>
 
       {/* Completion bar */}
-      <Paper sx={{ p: 2.5, mb: 2.5, background: "#EEF2FF", border: "1px solid #C7D2FE" }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-          <Typography variant="subtitle2" color="#4F46E5">Profile Completion</Typography>
-          <Typography variant="subtitle2" color="#4F46E5" fontWeight={700}>{completion}%</Typography>
+      <Paper
+        sx={{
+          p: 2.5,
+          mb: 2.5,
+          background: "linear-gradient(135deg, rgba(26,169,154,0.08) 0%, rgba(245,166,35,0.06) 100%)",
+          border: "1.5px solid rgba(26,169,154,0.25)",
+          borderRadius: "14px",
+        }}
+      >
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={1.25}>
+          <Typography variant="subtitle2" color="#1AA99A" fontWeight={600}>Profile Completion</Typography>
+          <Typography variant="subtitle2" color="#1AA99A" fontWeight={800} fontSize="1.1rem">{completion}%</Typography>
         </Box>
         <LinearProgress
           variant="determinate"
           value={completion}
           sx={{
-            height: 6,
-            background: "#C7D2FE",
-            "& .MuiLinearProgress-bar": { background: "#4F46E5" },
+            height: 8,
+            borderRadius: 4,
+            background: "rgba(26,169,154,0.15)",
+            "& .MuiLinearProgress-bar": {
+              background: "linear-gradient(90deg, #1AA99A 0%, #F5A623 100%)",
+              borderRadius: 4,
+            },
           }}
         />
       </Paper>
@@ -303,8 +341,29 @@ export default function ProfilePage() {
 
       {/* Save button */}
       <Box display="flex" gap={2} justifyContent="flex-end">
-        <Button variant="outlined" onClick={() => navigate("/dashboard")}>Cancel</Button>
-        <Button variant="contained" onClick={handleSave} disabled={saving} size="large">
+        <Button
+          variant="outlined"
+          onClick={() => navigate("/dashboard")}
+          sx={{ borderRadius: "50px", px: 3, borderColor: "#1AA99A", color: "#1AA99A" }}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleSave}
+          disabled={saving}
+          size="large"
+          sx={{
+            borderRadius: "50px",
+            px: 4,
+            background: "linear-gradient(135deg, #1AA99A 0%, #F5A623 100%)",
+            color: "#fff",
+            fontWeight: 700,
+            "&:hover": { opacity: 0.9, transform: "translateY(-1px)" },
+            "&:disabled": { background: "#CBD5E1", color: "#94A3B8" },
+          }}
+        >
           {saving ? "Saving…" : "Save Profile"}
         </Button>
       </Box>

@@ -50,7 +50,7 @@ export default function AppShell({ children }) {
   const pageTitle = getPageTitle(location.pathname);
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", background: "#F8FAFC" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh", background: "#F7FAFA" }}>
       {/* Sidebar */}
       <Sidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
 

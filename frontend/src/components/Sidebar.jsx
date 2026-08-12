@@ -60,19 +60,21 @@ function SidebarContent({ onClose }) {
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
+        background: "linear-gradient(180deg, #FAFEFE 0%, #F0FAF8 100%)",
       }}
     >
       {/* Logo */}
       <Box
-        sx={{ px: 2.5, height: 60, display: "flex", alignItems: "center", gap: 1.5, flexShrink: 0 }}
+        sx={{ px: 2.5, height: 64, display: "flex", alignItems: "center", gap: 1.5, flexShrink: 0 }}
       >
         <Box
           sx={{
-            width: 32, height: 32,
-            borderRadius: "8px",
-            background: PRIMARY,
+            width: 36, height: 36,
+            borderRadius: "10px",
+            background: "linear-gradient(135deg, #1AA99A 0%, #25C4B3 100%)",
             display: "flex", alignItems: "center", justifyContent: "center",
             flexShrink: 0,
+            boxShadow: "0 4px 12px rgba(26,169,154,0.3)",
           }}
         >
           <AutoAwesomeRoundedIcon sx={{ color: "#fff", fontSize: 18 }} />
@@ -81,8 +83,10 @@ function SidebarContent({ onClose }) {
           sx={{
             fontWeight: 700,
             fontSize: "0.9375rem",
-            color: "text.primary",
             letterSpacing: "-0.01em",
+            background: "linear-gradient(135deg, #12857A 0%, #1AA99A 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
           }}
         >
           HackMatch AI
@@ -102,25 +106,26 @@ function SidebarContent({ onClose }) {
                 selected={active}
                 onClick={() => handleNav(item.path)}
                 sx={{
-                  borderRadius: "8px",
+                  borderRadius: "10px",
                   mx: 1,
-                  mb: 0.25,
+                  mb: 0.5,
                   px: 1.5,
                   py: 0.875,
-                  minHeight: 40,
+                  minHeight: 42,
                   "&.Mui-selected": {
-                    background: "#EEF2FF",
-                    "& .MuiListItemIcon-root": { color: PRIMARY },
-                    "& .MuiListItemText-primary": { color: PRIMARY, fontWeight: 600 },
+                    background: "rgba(26,169,154,0.12)",
+                    borderLeft: "3px solid #1AA99A",
+                    "& .MuiListItemIcon-root": { color: "#1AA99A" },
+                    "& .MuiListItemText-primary": { color: "#12857A", fontWeight: 700 },
                   },
-                  "&.Mui-selected:hover": { background: "#E0E7FF" },
-                  "&:hover": { background: "#F8FAFC" },
+                  "&.Mui-selected:hover": { background: "rgba(26,169,154,0.17)" },
+                  "&:hover": { background: "rgba(26,169,154,0.07)" },
                 }}
               >
                 <ListItemIcon
                   sx={{
-                    minWidth: 32,
-                    color: active ? PRIMARY : "text.secondary",
+                    minWidth: 34,
+                    color: active ? "#1AA99A" : "#5F7A76",
                     transition: "color 0.15s",
                   }}
                 >
@@ -130,8 +135,8 @@ function SidebarContent({ onClose }) {
                   primary={item.label}
                   primaryTypographyProps={{
                     fontSize: "0.875rem",
-                    fontWeight: active ? 600 : 400,
-                    color: active ? PRIMARY : "text.secondary",
+                    fontWeight: active ? 700 : 500,
+                    color: active ? "#12857A" : "#5F7A76",
                   }}
                 />
               </ListItemButton>
@@ -186,19 +191,19 @@ function SidebarContent({ onClose }) {
         <ListItemButton
           onClick={handleLogout}
           sx={{
-            borderRadius: "8px",
+            borderRadius: "10px",
             px: 1.5,
             py: 0.875,
             color: "#DC2626",
             "&:hover": { background: "#FEF2F2" },
           }}
         >
-          <ListItemIcon sx={{ minWidth: 32, color: "inherit" }}>
+          <ListItemIcon sx={{ minWidth: 34, color: "inherit" }}>
             <LogoutIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText
             primary="Log out"
-            primaryTypographyProps={{ fontSize: "0.875rem", fontWeight: 500, color: "inherit" }}
+            primaryTypographyProps={{ fontSize: "0.875rem", fontWeight: 600, color: "inherit" }}
           />
         </ListItemButton>
       </Box>

@@ -18,12 +18,27 @@ import { recommendationService } from "../services/recommendation.service";
 function StatCard({ icon, label, value, sub, action, onClick, loading }) {
   return (
     <Paper
-      sx={{ p: 2.5, display: "flex", flexDirection: "column", gap: 1.5, height: "100%", cursor: onClick ? "pointer" : "default" }}
+      sx={{
+        p: 2.5,
+        display: "flex",
+        flexDirection: "column",
+        gap: 1.5,
+        height: "100%",
+        cursor: onClick ? "pointer" : "default",
+        border: "1.5px solid #E2EDED",
+        borderRadius: "14px",
+        transition: "all 0.2s ease",
+        "&:hover": onClick ? {
+          boxShadow: "0 8px 24px rgba(26,169,154,0.12)",
+          borderColor: "#A7D9D5",
+          transform: "translateY(-3px)",
+        } : {},
+      }}
       onClick={onClick}
     >
       {loading ? (
         <>
-          <Skeleton width={32} height={32} variant="rectangular" sx={{ borderRadius: 1 }} />
+          <Skeleton width={36} height={36} variant="rectangular" sx={{ borderRadius: 2 }} />
           <Skeleton width="60%" height={20} />
           <Skeleton width="40%" height={28} />
         </>
@@ -31,21 +46,23 @@ function StatCard({ icon, label, value, sub, action, onClick, loading }) {
         <>
           <Box
             sx={{
-              width: 36, height: 36, borderRadius: "8px",
-              background: "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center",
+              width: 40, height: 40, borderRadius: "10px",
+              background: "linear-gradient(135deg, rgba(26,169,154,0.12) 0%, rgba(245,166,35,0.08) 100%)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              border: "1px solid rgba(26,169,154,0.2)",
             }}
           >
-            <Box sx={{ color: "#4F46E5" }}>{icon}</Box>
+            <Box sx={{ color: "#1AA99A" }}>{icon}</Box>
           </Box>
           <Box>
             <Typography variant="caption" color="text.secondary" fontWeight={500}>{label}</Typography>
-            <Typography variant="h3" color="text.primary" mt={0.25}>{value}</Typography>
+            <Typography variant="h3" color="#12342F" mt={0.25} fontWeight={700}>{value}</Typography>
             {sub && <Typography variant="caption" color="text.secondary">{sub}</Typography>}
           </Box>
           {action && (
             <Typography
               variant="caption"
-              sx={{ color: "#4F46E5", fontWeight: 600, display: "flex", alignItems: "center", gap: 0.5, mt: "auto" }}
+              sx={{ color: "#1AA99A", fontWeight: 700, display: "flex", alignItems: "center", gap: 0.5, mt: "auto" }}
             >
               {action} <EastIcon sx={{ fontSize: 13 }} />
             </Typography>
@@ -127,22 +144,23 @@ export default function DashboardPage() {
       {/* Primary CTA */}
       <Paper
         sx={{
-          p: { xs: 2.5, sm: 3 },
+          p: { xs: 2.5, sm: 3.5 },
           mb: 3,
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
           alignItems: { sm: "center" },
-          gap: 2,
-          background: "#EEF2FF",
-          border: "1px solid #C7D2FE",
+          gap: 2.5,
+          background: "linear-gradient(135deg, rgba(26,169,154,0.10) 0%, rgba(245,166,35,0.08) 100%)",
+          border: "1.5px solid rgba(26,169,154,0.25)",
+          borderRadius: "16px",
         }}
       >
         <Box flex={1}>
           <Box display="flex" alignItems="center" gap={1} mb={0.5}>
-            <AutoAwesomeRoundedIcon sx={{ color: "#4F46E5", fontSize: 20 }} />
-            <Typography variant="h5" color="#4F46E5">AI Recommendations</Typography>
+            <AutoAwesomeRoundedIcon sx={{ color: "#F5A623", fontSize: 22 }} />
+            <Typography variant="h5" color="#12342F" fontWeight={700}>AI Recommendations</Typography>
           </Box>
-          <Typography variant="body2" color="#4338CA">
+          <Typography variant="body2" color="#5F7A76">
             {hasProfile
               ? "Your profile is set up. Get AI-matched hackathon projects now."
               : "Complete your profile to get personalized project recommendations."}
@@ -154,15 +172,38 @@ export default function DashboardPage() {
               variant="contained"
               onClick={() => navigate("/recommendations")}
               endIcon={<EastIcon />}
+              sx={{
+                borderRadius: "50px",
+                px: 3,
+                background: "linear-gradient(135deg, #F5A623 0%, #D4891A 100%)",
+                color: "#fff",
+                fontWeight: 700,
+                "&:hover": { opacity: 0.9, transform: "translateY(-1px)" },
+              }}
             >
               Find My Projects
             </Button>
           ) : (
             <>
-              <Button variant="contained" onClick={() => navigate("/profile")}>
+              <Button
+                variant="contained"
+                onClick={() => navigate("/profile")}
+                sx={{
+                  borderRadius: "50px",
+                  px: 3,
+                  background: "linear-gradient(135deg, #1AA99A 0%, #12857A 100%)",
+                  color: "#fff",
+                  fontWeight: 700,
+                  "&:hover": { opacity: 0.9, transform: "translateY(-1px)" },
+                }}
+              >
                 Complete Profile
               </Button>
-              <Button variant="outlined" onClick={() => navigate("/recommendations")}>
+              <Button
+                variant="outlined"
+                onClick={() => navigate("/recommendations")}
+                sx={{ borderRadius: "50px", px: 3, borderColor: "#1AA99A", color: "#1AA99A" }}
+              >
                 Browse Anyway
               </Button>
             </>
@@ -220,18 +261,49 @@ export default function DashboardPage() {
 
       {/* Profile completion bar */}
       {!loading && profilePct < 100 && (
-        <Paper sx={{ p: 2.5 }}>
+        <Paper
+          sx={{
+            p: 2.5,
+            border: "1.5px solid rgba(26,169,154,0.2)",
+            borderRadius: "14px",
+          }}
+        >
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={1.5}>
             <Box>
-              <Typography variant="subtitle2" color="text.primary">Profile Completion</Typography>
+              <Typography variant="subtitle2" color="#12342F">Profile Completion</Typography>
               <Typography variant="caption" color="text.secondary">
                 A complete profile improves recommendation accuracy
               </Typography>
             </Box>
-            <Typography variant="h4" color="#4F46E5">{profilePct}%</Typography>
+            <Typography variant="h4" color="#1AA99A" fontWeight={800}>{profilePct}%</Typography>
           </Box>
-          <LinearProgress variant="determinate" value={profilePct} sx={{ mb: 1.5 }} />
-          <Button size="small" onClick={() => navigate("/profile")} variant="outlined">
+          <LinearProgress
+            variant="determinate"
+            value={profilePct}
+            sx={{
+              mb: 1.5,
+              height: 8,
+              borderRadius: 4,
+              background: "rgba(26,169,154,0.15)",
+              "& .MuiLinearProgress-bar": {
+                background: "linear-gradient(90deg, #1AA99A 0%, #F5A623 100%)",
+                borderRadius: 4,
+              },
+            }}
+          />
+          <Button
+            size="small"
+            onClick={() => navigate("/profile")}
+            variant="contained"
+            sx={{
+              borderRadius: "50px",
+              px: 2.5,
+              background: "linear-gradient(135deg, #1AA99A 0%, #12857A 100%)",
+              color: "#fff",
+              fontWeight: 700,
+              "&:hover": { opacity: 0.9 },
+            }}
+          >
             Complete Profile
           </Button>
         </Paper>
