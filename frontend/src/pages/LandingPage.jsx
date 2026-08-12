@@ -1,7 +1,7 @@
 import { Box, Typography, Button, Chip } from "@mui/material";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import EastIcon from "@mui/icons-material/East";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { useNavigate } from "react-router-dom";
 
 const FEATURES = [
@@ -197,7 +197,7 @@ export default function LandingPage() {
           <Box sx={{ mb: 4, display: "flex", flexDirection: "column", gap: 1.25 }}>
             {PERKS.map((perk) => (
               <Box key={perk} display="flex" alignItems="center" gap={1.25}>
-                <CheckCircleOutlineIcon sx={{ color: "#1AA99A", fontSize: 18 }} />
+                <TaskAltIcon sx={{ color: "#1AA99A", fontSize: 18 }} />
                 <Typography variant="body2" fontWeight={500} color="#3A5A56">
                   {perk}
                 </Typography>
