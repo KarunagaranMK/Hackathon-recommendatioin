@@ -23,16 +23,14 @@ async def recommend_projects(
         )
 
     # Build student text
-    from app.ai.embedding import generate_embedding, profile_to_sentence
-    from app.ai.similarity import rank_projects
+    from app.ai.embedding import profile_to_sentence, rank_projects_by_text
     from app.ai.skill_gap import analyze_skill_gap
     from app.ai.roadmap import generate_roadmap
 
     sentence = profile_to_sentence(profile)
-    student_embedding = generate_embedding(sentence)
 
-    # Fetch all projects with embeddings
-    cursor = db.projects.find({}, {"embedding": 1, "title": 1, "description": 1,
+    # Fetch all projects (no need for stored embeddings — TF-IDF computes on the fly)
+    cursor = db.projects.find({}, {"title": 1, "description": 1,
                                    "problem_statement": 1, "domain": 1, "difficulty": 1,
                                    "skills_required": 1, "technologies": 1,
                                    "estimated_duration": 1, "learning_resources": 1,
@@ -42,8 +40,8 @@ async def recommend_projects(
     if not projects:
         raise HTTPException(status_code=404, detail="No projects found in database. Please seed the dataset.")
 
-    # Rank by cosine similarity
-    top_projects = rank_projects(student_embedding, projects, top_k=req.top_k)
+    # Rank by TF-IDF cosine similarity (lightweight, no GPU/PyTorch needed)
+    top_projects = rank_projects_by_text(profile, projects, top_k=req.top_k)
 
     # Build response with skill gap + roadmap
     student_skills = (

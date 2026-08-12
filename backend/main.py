@@ -18,14 +18,6 @@ async def lifespan(app: FastAPI):
     # Connect to MongoDB (non-fatal if it fails)
     await connect_db()
 
-    # Pre-load embedding model (so first recommendation isn't slow)
-    try:
-        from app.ai.embedding import get_model
-        get_model()
-        print("[OK] Embedding model loaded")
-    except Exception as e:
-        print(f"[W  ARN] Could not pre-load embedding model: {e}")
-
     if not is_connected():
         print("=" * 60)
         print("  IMPORTANT: MongoDB is NOT connected.")

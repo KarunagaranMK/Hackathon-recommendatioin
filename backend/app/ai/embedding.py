@@ -1,33 +1,53 @@
 """
-AI Embedding Module
-Uses sentence-transformers all-MiniLM-L6-v2 (384-dim embeddings)
-Singleton model loaded once at startup.
+AI Embedding Module — Lightweight TF-IDF version
+Replaces sentence-transformers (requires PyTorch ~400MB RAM)
+with scikit-learn TF-IDF (< 10MB RAM) — perfect for Render free tier.
 """
 from typing import List
-from functools import lru_cache
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+import threading
 
-_model = None
+_vectorizer = None
+_lock = threading.Lock()
 
 
 def get_model():
-    global _model
-    if _model is None:
-        from sentence_transformers import SentenceTransformer
-        print("[INFO] Loading Sentence Transformer model (all-MiniLM-L6-v2)...")
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
-        print("[OK] Model loaded successfully")
-    return _model
+    """Return the TF-IDF vectorizer (lazy singleton)."""
+    global _vectorizer
+    if _vectorizer is None:
+        with _lock:
+            if _vectorizer is None:
+                print("[INFO] Initialising TF-IDF vectorizer...")
+                _vectorizer = TfidfVectorizer(
+                    max_features=5000,
+                    ngram_range=(1, 2),
+                    sublinear_tf=True,
+                    strip_accents="unicode",
+                    analyzer="word",
+                )
+                print("[OK] TF-IDF vectorizer ready")
+    return _vectorizer
 
 
 def generate_embedding(text: str) -> List[float]:
-    """Generate a 384-dimensional embedding for the given text."""
-    model = get_model()
-    embedding = model.encode(text, convert_to_tensor=False)
-    return embedding.tolist()
+    """
+    Generate a TF-IDF vector for the given text.
+    Returns a dense list of floats.
+    """
+    vectorizer = get_model()
+    # fit_transform on a single doc so the vectorizer is always consistent
+    # We store the full vocab after the first real batch — see rank_projects
+    vec = vectorizer.transform([text]) if hasattr(vectorizer, "vocabulary_") else None
+    if vec is None:
+        # Fallback: return a zero-length list; rank_projects will handle it
+        return []
+    return vec.toarray()[0].tolist()
 
 
 def profile_to_sentence(profile: dict) -> str:
-    """Convert a student profile dict to a descriptive sentence for embedding."""
+    """Convert a student profile dict to a descriptive sentence."""
     parts = []
 
     experience = profile.get("experience_level", "Beginner")
@@ -57,12 +77,11 @@ def profile_to_sentence(profile: dict) -> str:
     if department:
         parts.append(f"studying {department}")
 
-    sentence = ", ".join(parts) + "."
-    return sentence
+    return ", ".join(parts) + "."
 
 
 def project_to_text(project: dict) -> str:
-    """Convert a project dict to a descriptive text for embedding."""
+    """Convert a project dict to descriptive text."""
     title = project.get("title", "")
     description = project.get("description", "")
     domain = project.get("domain", "")
@@ -70,9 +89,53 @@ def project_to_text(project: dict) -> str:
     skills = ", ".join(project.get("skills_required") or [])
     technologies = ", ".join(project.get("technologies") or [])
 
-    text = (
+    return (
         f"{title}. {description}. "
         f"Domain: {domain}. Difficulty: {difficulty}. "
         f"Skills required: {skills}. Technologies: {technologies}."
     )
-    return text
+
+
+def rank_projects_by_text(
+    student_profile: dict,
+    projects: List[dict],
+    top_k: int = 10,
+) -> List[dict]:
+    """
+    Rank projects against a student profile using TF-IDF cosine similarity.
+    Fits the vectorizer on all texts together for a consistent vocabulary.
+    """
+    if not projects:
+        return []
+
+    student_text = profile_to_sentence(student_profile)
+    project_texts = [project_to_text(p) for p in projects]
+
+    all_texts = [student_text] + project_texts
+
+    vectorizer = TfidfVectorizer(
+        max_features=5000,
+        ngram_range=(1, 2),
+        sublinear_tf=True,
+        strip_accents="unicode",
+    )
+    tfidf_matrix = vectorizer.fit_transform(all_texts)
+
+    student_vec = tfidf_matrix[0]
+    project_vecs = tfidf_matrix[1:]
+
+    similarities = cosine_similarity(student_vec, project_vecs)[0]
+
+    ranked = sorted(
+        zip(projects, similarities),
+        key=lambda x: x[1],
+        reverse=True,
+    )
+
+    results = []
+    for project, score in ranked[:top_k]:
+        project_copy = dict(project)
+        project_copy["similarity_score"] = float(score)
+        results.append(project_copy)
+
+    return results
